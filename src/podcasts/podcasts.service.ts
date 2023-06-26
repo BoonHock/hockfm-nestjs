@@ -115,8 +115,7 @@ export class PodcastsService {
         'podcast.date',
         'podcast.status',
       ])
-      .orderBy('podcast.date', 'DESC')
-      .addOrderBy('podcast.podcastId', 'DESC')
+      .orderBy('podcast.podcastId', 'DESC')
       .limit(50);
   }
 }
