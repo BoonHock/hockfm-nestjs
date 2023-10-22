@@ -26,7 +26,6 @@ export class WebhookService {
   }
 
   private async processChannels(createChannelDtos: CreateChannelDto[]) {
-    console.log('process');
     await this.channelService.createChannels(createChannelDtos);
   }
 
