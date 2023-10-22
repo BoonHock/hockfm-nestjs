@@ -23,7 +23,12 @@ export class WebhookController {
 
   @Post('addNewPodcasts')
   async addNewPodcasts(@Body() body: CreatePodcastDto[]) {
-    await this.webhookService.addNewPodcasts(body);
-    return 'OK';
+    let response = 'OK';
+    try {
+      await this.webhookService.addNewPodcasts(body);
+    } catch (e) {
+      response = JSON.stringify(e);
+    }
+    return response;
   }
 }
