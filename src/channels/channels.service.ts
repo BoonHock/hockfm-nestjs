@@ -45,6 +45,7 @@ export class ChannelsService {
 
   async createChannel(createChannelDto: CreateChannelDto) {
     const channel = this.channelRepository.create({
+      channelId: createChannelDto.channelId,
       name: createChannelDto.name,
       created_timestamp: createChannelDto.created_timestamp,
     });

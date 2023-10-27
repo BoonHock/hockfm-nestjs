@@ -10,12 +10,12 @@ import {
 import { PodcastStatus } from './podcast-status.enum';
 
 @Entity()
-@Index(['podcastId'], { unique: true })
 export class Podcast {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'int', unique: true })
+  // legacy column. previously used by php. perhaps drop all legacy columns in the future
+  @Column({ type: 'int' })
   podcastId: number;
 
   @Column({ type: 'varchar', length: 255 })
@@ -45,10 +45,15 @@ export class Podcast {
   @Column()
   playlistId: number;
 
+  @Column({ type: 'uuid', nullable: true })
+  playlistUuid: string;
+
   @ManyToOne(() => Playlist, {
     createForeignKeyConstraints: false,
     nullable: false,
   })
-  @JoinColumn({ name: 'playlistId', referencedColumnName: 'playlistId' })
+  @JoinColumn({ name: 'playlistUuid', referencedColumnName: 'id' })
   playlist: Playlist;
+  // @JoinColumn({ name: 'playlistId', referencedColumnName: 'playlistId' })
+  // playlist: Playlist;
 }

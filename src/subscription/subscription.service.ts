@@ -21,16 +21,15 @@ export class SubscriptionService {
       .createQueryBuilder('c')
       .innerJoinAndSelect('c.playlist', 'p')
       .leftJoinAndSelect('p.subscription', 's')
-      .orderBy('c.channelId')
-      .addOrderBy('c.name')
+      .orderBy('c.name')
       .addOrderBy('p.title')
       .select([
-        'c.channelId AS channel',
+        'c.id AS channel',
         'c.name AS channel_name',
-        'p.playlistId AS playlist',
+        'p.id AS playlist',
         'p.title AS playlist_name',
         'p.description AS description',
-        'CASE WHEN s.playlistId IS NULL THEN false ELSE true END AS is_subscribed',
+        'CASE WHEN s.playlistUuid IS NULL THEN false ELSE true END AS is_subscribed',
       ]);
 
     return subscriptionQuery.getRawMany();
@@ -43,7 +42,7 @@ export class SubscriptionService {
 
     const subs = createSubscriptionDto.subscribe_playlist.map((value) => {
       return this.subscriptionRepository.create({
-        playlistId: value,
+        playlistUuid: value,
         created_timestamp: klTime,
       });
     });

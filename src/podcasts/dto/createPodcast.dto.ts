@@ -28,4 +28,7 @@ export class CreatePodcastDto {
 
   @IsNotEmpty()
   playlistId: number;
+
+  @IsNotEmpty()
+  playlistUuid: string;
 }

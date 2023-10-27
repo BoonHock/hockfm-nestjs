@@ -1,4 +1,4 @@
-import { Controller, Post } from '@nestjs/common';
+import { Controller, Post, Get, Query } from '@nestjs/common';
 import { Body } from '@nestjs/common/decorators';
 import { WebhookService } from './webhook.service';
 import { CreateChannelDto } from 'src/channels/dto/createChannel.dto';
@@ -28,6 +28,24 @@ export class WebhookController {
       await this.webhookService.addNewPodcasts(body);
     } catch (e) {
       response = JSON.stringify(e);
+    }
+    return response;
+  }
+
+  @Get('getParsehubData')
+  async getParsehubData(@Query('runToken') runToken: string) {
+    let response = {};
+    try {
+      response = {
+        status: 'OK',
+        data: await this.webhookService.getParsehubData(runToken),
+      };
+    } catch (e) {
+      console.log(e);
+      response = {
+        status: 'ERROR',
+        data: e,
+      };
     }
     return response;
   }

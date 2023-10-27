@@ -11,7 +11,6 @@ import {
 } from 'typeorm';
 
 @Entity()
-@Index(['playlistId'], { unique: true })
 export class Playlist {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -34,13 +33,18 @@ export class Playlist {
   @Column()
   channelId: number;
 
+  @Column({ type: 'uuid', nullable: true })
+  channelUuid: string;
+
   @ManyToOne(() => Channel, {
     createForeignKeyConstraints: false,
     nullable: false,
   })
-  @JoinColumn({ name: 'channelId', referencedColumnName: 'channelId' })
-  channel: number;
+  @JoinColumn({ name: 'channelUuid', referencedColumnName: 'id' })
+  channel: Channel;
+  // @JoinColumn({ name: 'channelId', referencedColumnName: 'channelId' })
+  // channel: number;
 
-  @OneToOne(() => Subscription, (subscription) => subscription.playlistId)
+  @OneToOne(() => Subscription, (subscription) => subscription.playlistUuid)
   subscription: Subscription;
 }

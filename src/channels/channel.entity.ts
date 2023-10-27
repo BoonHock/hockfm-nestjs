@@ -8,12 +8,11 @@ import {
 } from 'typeorm';
 
 @Entity()
-@Index(['channelId'], { unique: true })
 export class Channel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'int', unique: true })
+  @Column({ type: 'int' })
   channelId: number;
 
   @Column({ type: 'varchar', length: 50, unique: true })

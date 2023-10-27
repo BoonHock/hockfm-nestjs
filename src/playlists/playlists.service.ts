@@ -18,6 +18,33 @@ export class PlaylistsService {
     return playlists;
   }
 
+  async getPlaylistByNameAndChannelId(
+    name: string,
+    channelId: string,
+  ): Promise<Playlist> {
+    const playlists = await this.playlistRepository.findOne({
+      where: {
+        title: name,
+        channelUuid: channelId,
+      },
+    });
+
+    return playlists;
+  }
+
+  async createPlaylist(createPlaylistDto: CreatePlaylistDto) {
+    const playlist = this.playlistRepository.create({
+      playlistId: createPlaylistDto.playlistId,
+      title: createPlaylistDto.title,
+      description: createPlaylistDto.description,
+      channelId: createPlaylistDto.channelId,
+      play_order: 127, // this was kinda dumped. not updated in any place... but just keep it la. lazy to update
+      created_timestamp: createPlaylistDto.created_timestamp,
+    });
+    await this.playlistRepository.save(playlist);
+    return playlist;
+  }
+
   async getPlaylistIds(playlistIds: number[]) {
     const playlists = await this.playlistRepository.find({
       where: playlistIds.map((val) => {

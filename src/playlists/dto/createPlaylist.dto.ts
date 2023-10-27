@@ -2,6 +2,9 @@ import { IsNotEmpty } from 'class-validator';
 
 export class CreatePlaylistDto {
   @IsNotEmpty()
+  channelUuid: string;
+
+  @IsNotEmpty()
   playlistId: number;
 
   @IsNotEmpty()
