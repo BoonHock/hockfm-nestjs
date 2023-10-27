@@ -69,9 +69,6 @@ export class WebhookService {
         };
 
         channel.playlist.forEach((playlist) => {
-          if (playlist.title === 'Hitz Morning Crew Rewinds') {
-            console.log(playlist);
-          }
           if (playlist.item) {
             obj.playlist.push({
               title: playlist.title,

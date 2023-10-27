@@ -41,7 +41,6 @@ export class WebhookController {
         data: await this.webhookService.loadParsehubToDB(runToken),
       };
     } catch (e) {
-      console.log(e);
       response = {
         status: 'ERROR',
         data: e,
