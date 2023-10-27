@@ -17,12 +17,22 @@ export class PodcastsService {
     private subscriptionRepository: Repository<Subscription>,
   ) {}
 
-  async getPodcasts(load_more: number | null): Promise<Podcast[]> {
-    const podcasts = this.getPodcastsQuery()
-      .where('podcast.status <> :status', { status: PodcastStatus.SKIPPED })
-      .andWhere(load_more ? 'podcast.podcastId < :load_more' : '1=1', {
-        load_more: load_more,
+  async getPodcasts(load_more?: string): Promise<Podcast[]> {
+    const podcasts = this.getPodcastsQuery().where(
+      'podcast.status <> :status',
+      { status: PodcastStatus.SKIPPED },
+    );
+
+    if (load_more) {
+      const endDate = new Date(load_more);
+      endDate.setDate(endDate.getDate() - 1);
+      const startDate = new Date(endDate.getTime());
+      startDate.setDate(startDate.getDate() - 6);
+      podcasts.andWhere('podcast.date between :startDate and :endDate', {
+        startDate: startDate,
+        endDate: endDate,
       });
+    }
     // .andWhere(
     //   '((SELECT COUNT(*) FROM subscription) = 0 OR (podcast.playlistId IN (SELECT subscription.playlistId FROM subscription)))',
     // );
@@ -31,7 +41,7 @@ export class PodcastsService {
       podcasts.innerJoin(
         'subscription',
         'subscription',
-        'podcast.playlistId = subscription.playlistId',
+        'podcast.playlistUuid = subscription.playlistUuid',
       );
     }
 

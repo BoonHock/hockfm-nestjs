@@ -11,13 +11,7 @@ export class PodcastsController {
   async getAllPodcasts(
     @Query('load_more') load_more: string,
   ): Promise<Podcast[]> {
-    let loadMore: number = null;
-
-    if (!isNaN(+load_more)) {
-      loadMore = parseInt(load_more);
-    }
-
-    return await this.podcastsService.getPodcasts(loadMore);
+    return await this.podcastsService.getPodcasts(load_more);
   }
 
   @Get('/:id')
