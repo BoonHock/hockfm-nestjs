@@ -32,13 +32,13 @@ export class WebhookController {
     return response;
   }
 
-  @Get('getParsehubData')
-  async getParsehubData(@Query('runToken') runToken: string) {
+  @Post('loadParsehubToDB')
+  async loadParsehubToDB(@Query('runToken') runToken: string) {
     let response = {};
     try {
       response = {
         status: 'OK',
-        data: await this.webhookService.getParsehubData(runToken),
+        data: await this.webhookService.loadParsehubToDB(runToken),
       };
     } catch (e) {
       console.log(e);

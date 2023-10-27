@@ -33,7 +33,7 @@ export class WebhookService {
     await this.processPodcasts(createPodcastDto);
   }
 
-  async getParsehubData(runToken: string) {
+  async loadParsehubToDB(runToken: string) {
     const { data: parsehubResponse } = await firstValueFrom(
       this.httpService.get(
         `https://www.parsehub.com/api/v2/runs/${runToken}/data?api_key=taaKjPYhn_oY`,
