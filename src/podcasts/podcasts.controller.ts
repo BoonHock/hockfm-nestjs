@@ -15,22 +15,17 @@ export class PodcastsController {
   }
 
   @Get('/:id')
-  getPodcastById(@Param('id') podcastId: number): Promise<Podcast> {
-    return this.podcastsService.getPodcastById(podcastId);
-  }
-
-  @Get('misc/latestPodcastId')
-  async getLatestPodcastId(): Promise<number> {
-    return await this.podcastsService.getLatestPodcastId();
+  getPodcastById(@Param('id') id: string): Promise<Podcast> {
+    return this.podcastsService.getPodcastById(id);
   }
 
   @Put(':id/status')
   async updatePodcastStatus(
-    @Param('id') podcastId: number,
+    @Param('id') id: string,
     @Body() updatePodcastStatusDto: updatePodcastStatusDto,
   ) {
     const { status } = updatePodcastStatusDto;
-    await this.podcastsService.updatePodcastStatus(podcastId, status);
+    await this.podcastsService.updatePodcastStatus(id, status);
     return 'OK';
   }
 }

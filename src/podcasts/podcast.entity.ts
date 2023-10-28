@@ -14,10 +14,6 @@ export class Podcast {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // legacy column. previously used by php. perhaps drop all legacy columns in the future
-  @Column({ type: 'int' })
-  podcastId: number;
-
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
@@ -42,9 +38,6 @@ export class Podcast {
   @Column({ type: 'timestamp' })
   created_timestamp: Date;
 
-  @Column()
-  playlistId: number;
-
   @Column({ type: 'uuid', nullable: true })
   playlistUuid: string;
 
@@ -54,6 +47,4 @@ export class Podcast {
   })
   @JoinColumn({ name: 'playlistUuid', referencedColumnName: 'id' })
   playlist: Playlist;
-  // @JoinColumn({ name: 'playlistId', referencedColumnName: 'playlistId' })
-  // playlist: Playlist;
 }

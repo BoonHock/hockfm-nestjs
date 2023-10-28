@@ -42,6 +42,9 @@ export class WebhookService {
 
     const parsehubProcess: ParsehubProcess[] = [];
 
+    if (!parsehubResponse.channel) {
+      return 'no channel';
+    }
     if (parsehubResponse.channel === 'BFM') {
       const parsehubBfm = parsehubResponse as ParsehubBfm;
       const obj: ParsehubProcess = {
@@ -90,12 +93,10 @@ export class WebhookService {
       });
     }
 
-    let test: any;
-
     parsehubProcess.forEach((process) => {
-      test = this.loadParsehubDataIntoDb(process);
+      this.loadParsehubDataIntoDb(process);
     });
-    return test;
+    return 'OK';
   }
 
   async loadParsehubDataIntoDb(parsehubProcess: ParsehubProcess) {
@@ -104,7 +105,6 @@ export class WebhookService {
     );
     if (!channel) {
       channel = await this.channelService.createChannel({
-        channelId: 0, // legacy reason. previously sent by php side
         name: parsehubProcess.name,
         created_timestamp: new Date(),
       });
@@ -115,17 +115,15 @@ export class WebhookService {
         return;
       }
 
-      let playlistDb = await this.playlistService.getPlaylistByNameAndChannelId(
+      let playlistDb = await this.playlistService.getPlaylistByNameAndChannelUuid(
         playlist.title,
         channel.id,
       );
 
       if (!playlistDb) {
         playlistDb = await this.playlistService.createPlaylist({
-          playlistId: 0, // legacy reason. previously sent by php side
           title: playlist.title,
           description: playlist.description ?? '',
-          channelId: 0, // legacy reason. previously sent by php side
           created_timestamp: new Date(),
           channelUuid: channel.id,
         });
@@ -135,8 +133,6 @@ export class WebhookService {
       playlist.item.forEach((item) => {
         const obj: CreatePodcastDto = {
           playlistUuid: playlistDb.id,
-          playlistId: 0, // legacy reason. previously sent by php side
-          podcastId: 0, // legacy reason. previously sent by php side
           title: item.title,
           description: item.description ?? '',
           url: item.url,
@@ -150,7 +146,6 @@ export class WebhookService {
 
       await this.processPodcasts(createPodcastDto);
     });
-    return 'ok';
   }
 
   private async processChannels(createChannelDtos: CreateChannelDto[]) {

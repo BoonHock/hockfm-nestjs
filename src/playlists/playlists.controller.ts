@@ -10,9 +10,4 @@ export class PlaylistsController {
   getAllPlaylists(): Promise<Playlist[]> {
     return this.playlistsService.getPlaylists();
   }
-
-  @Get('latestPlaylistId')
-  async getLatestPlaylistId(): Promise<number> {
-    return await this.playlistsService.getLatestPlaylistId();
-  }
 }

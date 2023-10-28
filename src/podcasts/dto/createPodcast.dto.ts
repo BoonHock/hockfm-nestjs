@@ -1,10 +1,7 @@
-import { IsInt, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { PodcastStatus } from '../podcast-status.enum';
 
 export class CreatePodcastDto {
-  @IsNotEmpty()
-  podcastId: number;
-
   @IsNotEmpty()
   title: string;
 
@@ -25,9 +22,6 @@ export class CreatePodcastDto {
 
   @IsNotEmpty()
   created_timestamp: Date;
-
-  @IsNotEmpty()
-  playlistId: number;
 
   @IsNotEmpty()
   playlistUuid: string;

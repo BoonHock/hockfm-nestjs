@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { NotFoundException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Subscription } from 'src/subscription/subscription.entity';
-import { PodcastDto } from 'src/webhook/dto/podcast.dto';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { CreatePodcastDto } from './dto/createPodcast.dto';
 import { PodcastStatus } from './podcast-status.enum';
@@ -33,9 +32,6 @@ export class PodcastsService {
         endDate: endDate,
       });
     }
-    // .andWhere(
-    //   '((SELECT COUNT(*) FROM subscription) = 0 OR (podcast.playlistId IN (SELECT subscription.playlistId FROM subscription)))',
-    // );
 
     if ((await this.subscriptionRepository.count()) > 0) {
       podcasts.innerJoin(
@@ -48,32 +44,10 @@ export class PodcastsService {
     return podcasts.getMany();
   }
 
-  async getPodcastById(podcastId: number): Promise<Podcast> {
+  async getPodcastById(id: string): Promise<Podcast> {
     return await this.getPodcastsQuery()
-      .where('podcast.podcastId = :id', { id: podcastId })
+      .where('podcast.id = :id', { id: id })
       .getOne();
-  }
-
-  async getPodcastIds(podcastIds: number[]) {
-    const podcasts = await this.podcastRepository.find({
-      where: podcastIds.map((val) => {
-        return { podcastId: val };
-      }),
-      select: {
-        id: true,
-      },
-    });
-
-    return podcasts.map((val) => val.podcastId);
-  }
-
-  async getLatestPodcastId(): Promise<number> {
-    const podcast = await this.podcastRepository
-      .createQueryBuilder('podcast')
-      .select('MAX(podcast.podcastId)', 'maxPodcastId')
-      .getRawOne();
-
-    return podcast['maxPodcastId'] ?? 0;
   }
 
   async createPodcasts(
@@ -97,16 +71,16 @@ export class PodcastsService {
     return podcasts;
   }
 
-  async updatePodcastStatus(podcastId: number, status: PodcastStatus) {
+  async updatePodcastStatus(id: string, status: PodcastStatus) {
     const podcast = await this.podcastRepository.findOne({
-      where: { podcastId: podcastId },
+      where: { id: id },
     });
 
     if (podcast) {
       podcast.status = status;
       await this.podcastRepository.save(podcast);
     } else {
-      throw new NotFoundException(`No podcast found for Id ${podcastId}`);
+      throw new NotFoundException(`No podcast found for Id ${id}`);
     }
   }
 
@@ -118,7 +92,7 @@ export class PodcastsService {
       .select([
         'channel.name',
         'playlist.title',
-        'podcast.podcastId',
+        'podcast.id',
         'podcast.title',
         'podcast.description',
         'podcast.url',
@@ -126,7 +100,6 @@ export class PodcastsService {
         'podcast.status',
       ])
       .orderBy('podcast.date', 'DESC')
-      .addOrderBy('podcast.podcastId', 'DESC')
       .limit(50);
   }
 }

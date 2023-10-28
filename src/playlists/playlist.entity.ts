@@ -2,21 +2,16 @@ import { Channel } from 'src/channels/channel.entity';
 import { Subscription } from 'src/subscription/subscription.entity';
 import {
   Column,
-  Entity,
-  Index,
-  JoinColumn,
+  Entity, JoinColumn,
   ManyToOne,
   OneToOne,
-  PrimaryGeneratedColumn,
+  PrimaryGeneratedColumn
 } from 'typeorm';
 
 @Entity()
 export class Playlist {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({ type: 'int', name: 'playlistId' })
-  playlistId: number;
 
   @Column({ type: 'varchar', length: 200 })
   title: string;
@@ -30,9 +25,6 @@ export class Playlist {
   @Column({ type: 'timestamp' })
   created_timestamp: Date;
 
-  @Column()
-  channelId: number;
-
   @Column({ type: 'uuid', nullable: true })
   channelUuid: string;
 
@@ -42,8 +34,6 @@ export class Playlist {
   })
   @JoinColumn({ name: 'channelUuid', referencedColumnName: 'id' })
   channel: Channel;
-  // @JoinColumn({ name: 'channelId', referencedColumnName: 'channelId' })
-  // channel: number;
 
   @OneToOne(() => Subscription, (subscription) => subscription.playlistUuid)
   subscription: Subscription;
