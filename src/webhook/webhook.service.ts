@@ -71,25 +71,27 @@ export class WebhookService {
           playlist: [],
         };
 
-        channel.playlist.forEach((playlist) => {
-          if (playlist.item) {
-            obj.playlist.push({
-              title: playlist.title,
-              description: playlist.description,
-              item: playlist.item
-                ?.filter((item) => item.url && item.title)
-                .map((item) => {
-                  if (item.date) {
-                    var dateParts = item.date.split('-');
-                    item.date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                  }
-                  return item;
-                }),
-            });
-          }
-        });
+        if (channel.playlist) {
+          channel.playlist.forEach((playlist) => {
+            if (playlist.item) {
+              obj.playlist.push({
+                title: playlist.title,
+                description: playlist.description,
+                item: playlist.item
+                  ?.filter((item) => item.url && item.title)
+                  .map((item) => {
+                    if (item.date) {
+                      var dateParts = item.date.split('-');
+                      item.date = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+                    }
+                    return item;
+                  }),
+              });
+            }
+          });
 
-        parsehubProcess.push(obj);
+          parsehubProcess.push(obj);
+        }
       });
     }
 
@@ -115,10 +117,11 @@ export class WebhookService {
         return;
       }
 
-      let playlistDb = await this.playlistService.getPlaylistByNameAndChannelUuid(
-        playlist.title,
-        channel.id,
-      );
+      let playlistDb =
+        await this.playlistService.getPlaylistByNameAndChannelUuid(
+          playlist.title,
+          channel.id,
+        );
 
       if (!playlistDb) {
         playlistDb = await this.playlistService.createPlaylist({

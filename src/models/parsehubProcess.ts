@@ -1,6 +1,6 @@
 export interface ParsehubProcess {
   name: string;
-  playlist: ParsehubPlaylist[];
+  playlist?: ParsehubPlaylist[];
 }
 
 export interface ParsehubPlaylist {
