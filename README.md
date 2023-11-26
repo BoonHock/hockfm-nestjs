@@ -71,3 +71,7 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+## Excecute to deploy to docker hub
+docker build -t boonhock/hockfm-dev-hockfm-nestjs . 
+docker push boonhock/hockfm-dev-hockfm-nestjs:latest
