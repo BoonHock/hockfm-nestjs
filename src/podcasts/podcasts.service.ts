@@ -3,7 +3,6 @@ import { NotFoundException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Subscription } from 'src/subscription/subscription.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { CreatePodcastDto } from './dto/createPodcast.dto';
 import { PodcastStatus } from './podcast-status.enum';
 import { Podcast } from './podcast.entity';
 
@@ -48,27 +47,6 @@ export class PodcastsService {
     return await this.getPodcastsQuery()
       .where('podcast.id = :id', { id: id })
       .getOne();
-  }
-
-  async createPodcasts(
-    createPodcastDtos: CreatePodcastDto[],
-  ): Promise<Podcast[]> {
-    const podcasts = createPodcastDtos.map((value) => {
-      return this.podcastRepository.create({
-        ...value,
-      });
-    }, []);
-
-    const query = this.podcastRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Podcast)
-      .values(podcasts)
-      .orIgnore(true);
-
-    await query.execute();
-
-    return podcasts;
   }
 
   async updatePodcastStatus(id: string, status: PodcastStatus) {
