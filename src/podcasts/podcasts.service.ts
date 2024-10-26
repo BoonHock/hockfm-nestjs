@@ -25,7 +25,8 @@ export class PodcastsService {
       const endDate = new Date(load_more);
       endDate.setDate(endDate.getDate() - 1);
       const startDate = new Date(endDate.getTime());
-      startDate.setDate(startDate.getDate() - 6);
+      // need to revisit to improve the logic
+      startDate.setDate(startDate.getDate() - 100);
       podcasts.andWhere('podcast.date between :startDate and :endDate', {
         startDate: startDate,
         endDate: endDate,
