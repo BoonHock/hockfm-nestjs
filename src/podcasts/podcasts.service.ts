@@ -5,6 +5,7 @@ import { Subscription } from 'src/subscription/subscription.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { PodcastStatus } from './podcast-status.enum';
 import { Podcast } from './podcast.entity';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 
 @Injectable()
 export class PodcastsService {
@@ -21,18 +22,6 @@ export class PodcastsService {
       { status: PodcastStatus.SKIPPED },
     );
 
-    if (load_more) {
-      const endDate = new Date(load_more);
-      endDate.setDate(endDate.getDate() - 1);
-      const startDate = new Date(endDate.getTime());
-      // need to revisit to improve the logic
-      startDate.setDate(startDate.getDate() - 100);
-      podcasts.andWhere('podcast.date between :startDate and :endDate', {
-        startDate: startDate,
-        endDate: endDate,
-      });
-    }
-
     if ((await this.subscriptionRepository.count()) > 0) {
       podcasts.innerJoin(
         'subscription',
@@ -41,7 +30,28 @@ export class PodcastsService {
       );
     }
 
-    return podcasts.getMany();
+    let results: Podcast[] = [];
+
+    // loop few times to attempt to get podcasts. if still don't have, then return empty array
+    for (let i = 0; i < 20; i++) {
+      const endDate = endOfDay(
+        load_more ? subDays(new Date(load_more), 1) : new Date(),
+      );
+      const startDate = startOfDay(subDays(endDate, (i + 1) * 3));
+
+      podcasts.andWhere('podcast.date between :startDate and :endDate', {
+        startDate: startDate,
+        endDate: endDate,
+      });
+
+      results = await podcasts.getMany();
+
+      if (results.length) {
+        break;
+      }
+    }
+
+    return results;
   }
 
   async getPodcastById(id: string): Promise<Podcast> {
@@ -78,7 +88,6 @@ export class PodcastsService {
         'podcast.date',
         'podcast.status',
       ])
-      .orderBy('podcast.date', 'DESC')
-      .limit(50);
+      .orderBy('podcast.date', 'DESC');
   }
 }
