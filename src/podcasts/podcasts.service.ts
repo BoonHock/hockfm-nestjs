@@ -6,6 +6,7 @@ import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { UserContext } from 'src/models/user-context';
 import { SubscriptionService } from 'src/subscription/subscription.service';
 import { PodcastStatusEnum } from 'src/common/enum/podcast-status.enum';
+import { PodcastOutput } from './dto/podcast.dto';
 
 @Injectable()
 export class PodcastsService {
@@ -18,8 +19,17 @@ export class PodcastsService {
   async getPodcasts(
     load_more?: string,
     user?: UserContext,
-  ): Promise<Podcast[]> {
-    let results: Podcast[] = [];
+  ): Promise<PodcastOutput[]> {
+    let results: {
+      podcast_id: string;
+      podcast_title: string;
+      podcast_description: string;
+      podcast_url: string;
+      podcast_date: Date;
+      playlist_title: string;
+      channel_name: string;
+      status: PodcastStatusEnum;
+    }[] = [];
 
     // loop few times to attempt to get podcasts. if still don't have, then return empty array
     for (let i = 0; i < 20; i++) {
@@ -53,14 +63,32 @@ export class PodcastsService {
         endDate: endDate,
       });
 
-      results = await podcasts.getMany();
+      results = await podcasts.getRawMany();
 
       if (results.length) {
         break;
       }
     }
 
-    return results;
+    const output = results.map((podcast) => {
+      const out: PodcastOutput = {
+        id: podcast.podcast_id,
+        title: podcast.podcast_title,
+        description: podcast.podcast_description,
+        url: podcast.podcast_url,
+        date: podcast.podcast_date,
+        playlist: {
+          title: podcast.playlist_title,
+          channel: {
+            name: podcast.channel_name,
+          },
+        },
+        status: podcast.status || 0,
+      };
+      return out;
+    });
+
+    return output;
   }
 
   async getPodcastById(id: string): Promise<Podcast> {
@@ -83,7 +111,7 @@ export class PodcastsService {
         'podcast.description',
         'podcast.url',
         'podcast.date',
-        'ps.status',
+        'ps.status as status',
       ])
       .orderBy('podcast.date', 'DESC');
   }

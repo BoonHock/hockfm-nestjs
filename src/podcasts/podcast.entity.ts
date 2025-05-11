@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { PodcastStatus } from 'src/podcast-statuses/entities/podcast-statuses.entity';
+import { PodcastStatusEnum } from 'src/common/enum/podcast-status.enum';
 
 @Entity()
 export class Podcast {
@@ -32,7 +32,7 @@ export class Podcast {
 
   // TODO: remove after migration
   @Column({ type: 'int', nullable: true })
-  status?: PodcastStatus;
+  status?: PodcastStatusEnum;
 
   @Column({ type: 'timestamp' })
   created_timestamp: Date;
