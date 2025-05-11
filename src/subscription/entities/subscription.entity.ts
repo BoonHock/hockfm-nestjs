@@ -13,7 +13,7 @@ export class Subscription {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   @OneToOne(() => User, { createForeignKeyConstraints: false })
   @JoinColumn({ name: 'userUuid', referencedColumnName: 'id' })
   userUuid: string;
@@ -23,6 +23,6 @@ export class Subscription {
   @JoinColumn({ name: 'playlistUuid', referencedColumnName: 'id' })
   playlistUuid: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', nullable: true })
   createdAt: Date;
 }
