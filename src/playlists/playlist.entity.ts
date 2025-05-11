@@ -1,11 +1,12 @@
 import { Channel } from 'src/channels/channel.entity';
-import { Subscription } from 'src/subscription/subscription.entity';
+import { Subscription } from 'src/subscription/entities/subscription.entity';
 import {
   Column,
-  Entity, JoinColumn,
+  Entity,
+  JoinColumn,
   ManyToOne,
   OneToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity()

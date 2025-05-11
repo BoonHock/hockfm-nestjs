@@ -2,12 +2,11 @@ import { Playlist } from 'src/playlists/playlist.entity';
 import {
   Column,
   Entity,
-  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { PodcastStatus } from './podcast-status.enum';
+import { PodcastStatus } from 'src/podcast-statuses/entities/podcast-statuses.entity';
 
 @Entity()
 export class Podcast {
@@ -31,9 +30,9 @@ export class Podcast {
   @Column({ type: 'boolean' })
   is_real_date: boolean;
 
-  // @Column({ type: 'int' }) // mysql
-  @Column({ type: 'int' })
-  status: PodcastStatus;
+  // TODO: remove after migration
+  @Column({ type: 'int', nullable: true })
+  status?: PodcastStatus;
 
   @Column({ type: 'timestamp' })
   created_timestamp: Date;

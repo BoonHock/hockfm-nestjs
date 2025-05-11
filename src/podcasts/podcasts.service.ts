@@ -1,39 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { NotFoundException } from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Subscription } from 'src/subscription/subscription.entity';
 import { Repository, SelectQueryBuilder } from 'typeorm';
-import { PodcastStatus } from './podcast-status.enum';
 import { Podcast } from './podcast.entity';
 import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { UserContext } from 'src/models/user-context';
+import { SubscriptionService } from 'src/subscription/subscription.service';
+import { PodcastStatusEnum } from 'src/common/enum/podcast-status.enum';
 
 @Injectable()
 export class PodcastsService {
   constructor(
     @InjectRepository(Podcast)
     private podcastRepository: Repository<Podcast>,
-    @InjectRepository(Subscription)
-    private subscriptionRepository: Repository<Subscription>,
+    private subscriptionService: SubscriptionService,
   ) {}
 
-  async getPodcasts(load_more?: string): Promise<Podcast[]> {
-    const podcasts = this.getPodcastsQuery().where(
-      'podcast.status <> :status',
-      { status: PodcastStatus.SKIPPED },
-    );
-
-    if ((await this.subscriptionRepository.count()) > 0) {
-      podcasts.innerJoin(
-        'subscription',
-        'subscription',
-        'podcast.playlistUuid = subscription.playlistUuid',
-      );
-    }
-
+  async getPodcasts(
+    load_more?: string,
+    user?: UserContext,
+  ): Promise<Podcast[]> {
     let results: Podcast[] = [];
 
     // loop few times to attempt to get podcasts. if still don't have, then return empty array
     for (let i = 0; i < 20; i++) {
+      const podcasts = this.getPodcastsQuery();
+
+      if (user) {
+        if (
+          (await this.subscriptionService.countSubscriptionsByUser(user.sub)) >
+          0
+        ) {
+          podcasts.innerJoin(
+            'subscription',
+            'subscription',
+            'podcast.playlistUuid = subscription.playlistUuid AND subscription.userUuid = :userUuid',
+            { userUuid: user.sub },
+          );
+        }
+
+        podcasts.where('COALESCE(ps.status, 0) <> :status', {
+          status: PodcastStatusEnum.SKIPPED,
+        });
+      }
+
       const endDate = endOfDay(
         load_more ? subDays(new Date(load_more), 1) : new Date(),
       );
@@ -60,24 +69,12 @@ export class PodcastsService {
       .getOne();
   }
 
-  async updatePodcastStatus(id: string, status: PodcastStatus) {
-    const podcast = await this.podcastRepository.findOne({
-      where: { id: id },
-    });
-
-    if (podcast) {
-      podcast.status = status;
-      await this.podcastRepository.save(podcast);
-    } else {
-      throw new NotFoundException(`No podcast found for Id ${id}`);
-    }
-  }
-
   private getPodcastsQuery(): SelectQueryBuilder<Podcast> {
     return this.podcastRepository
       .createQueryBuilder('podcast')
       .innerJoinAndSelect('podcast.playlist', 'playlist')
       .innerJoinAndSelect('playlist.channel', 'channel')
+      .leftJoinAndSelect('podcast_status', 'ps', 'ps.podcastUuid = podcast.id')
       .select([
         'channel.name',
         'playlist.title',
@@ -86,7 +83,7 @@ export class PodcastsService {
         'podcast.description',
         'podcast.url',
         'podcast.date',
-        'podcast.status',
+        'ps.status',
       ])
       .orderBy('podcast.date', 'DESC');
   }

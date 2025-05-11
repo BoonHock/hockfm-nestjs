@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Channel } from 'src/channels/channel.entity';
 import { SubscriptionController } from './subscription.controller';
-import { Subscription } from './subscription.entity';
+import { Subscription } from './entities/subscription.entity';
 import { SubscriptionService } from './subscription.service';
 
 @Module({
@@ -12,5 +12,6 @@ import { SubscriptionService } from './subscription.service';
   ],
   controllers: [SubscriptionController],
   providers: [SubscriptionService],
+  exports: [SubscriptionService],
 })
 export class SubscriptionModule {}

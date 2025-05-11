@@ -1,17 +1,24 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Subscription } from 'src/subscription/subscription.entity';
 import { Podcast } from './podcast.entity';
 import { PodcastsController } from './podcasts.controller';
 import { PodcastsService } from './podcasts.service';
+import { SubscriptionModule } from 'src/subscription/subscription.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Podcast]),
-    TypeOrmModule.forFeature([Subscription]),
-  ],
+  imports: [TypeOrmModule.forFeature([Podcast]), SubscriptionModule, JwtModule],
   controllers: [PodcastsController],
-  providers: [PodcastsService],
+  providers: [
+    PodcastsService,
+    AuthGuard,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
   exports: [PodcastsService],
 })
 export class PodcastsModule {}

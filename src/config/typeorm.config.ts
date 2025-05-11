@@ -4,7 +4,7 @@ import { TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
 import { Channel } from 'src/channels/channel.entity';
 import { Playlist } from 'src/playlists/playlist.entity';
 import { Podcast } from 'src/podcasts/podcast.entity';
-import { Subscription } from 'src/subscription/subscription.entity';
+import { Subscription } from 'src/subscription/entities/subscription.entity';
 
 export const TypeOrmConfig: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
