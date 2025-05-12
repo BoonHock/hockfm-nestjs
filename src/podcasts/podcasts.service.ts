@@ -33,7 +33,7 @@ export class PodcastsService {
 
     // loop few times to attempt to get podcasts. if still don't have, then return empty array
     for (let i = 0; i < 20; i++) {
-      const podcasts = this.getPodcastsQuery();
+      const podcasts = this.getPodcastsQuery(user);
 
       if (user) {
         if (
@@ -97,12 +97,19 @@ export class PodcastsService {
       .getOne();
   }
 
-  private getPodcastsQuery(): SelectQueryBuilder<Podcast> {
+  private getPodcastsQuery(user?: UserContext): SelectQueryBuilder<Podcast> {
     return this.podcastRepository
       .createQueryBuilder('podcast')
       .innerJoinAndSelect('podcast.playlist', 'playlist')
       .innerJoinAndSelect('playlist.channel', 'channel')
-      .leftJoinAndSelect('podcast_status', 'ps', 'ps.podcastUuid = podcast.id')
+      .leftJoinAndSelect(
+        'podcast_status',
+        'ps',
+        'ps.podcastUuid = podcast.id AND ps.userUuid = :userUuid',
+        {
+          userUuid: user?.sub,
+        },
+      )
       .select([
         'channel.name',
         'playlist.title',
@@ -111,7 +118,7 @@ export class PodcastsService {
         'podcast.description',
         'podcast.url',
         'podcast.date',
-        'ps.status as status',
+        'coalesce(ps.status, 0) as status',
       ])
       .orderBy('podcast.date', 'DESC');
   }
