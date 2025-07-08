@@ -56,7 +56,35 @@ export class PodcastsService {
       const endDate = endOfDay(
         load_more ? subDays(new Date(load_more), 1) : new Date(),
       );
-      const startDate = startOfDay(subDays(endDate, (i + 1) * 3));
+      let startDate = startOfDay(subDays(endDate, (i + 1) * 3));
+
+      const isStartDate14DaysAgo =
+        startDate.getTime() < subDays(new Date(), 14).getTime();
+
+      // if start date is more than 14 days ago, we get the min date of the last 20 records before that
+      if (isStartDate14DaysAgo) {
+        const subQuery = this.podcastRepository
+          .createQueryBuilder('p')
+          .select('p.date', 'date')
+          .where('p.date <= :cutoff', { cutoff: endDate }) // this should be the end date
+          .andWhere('COALESCE(p.status, 0) = :status', {
+            status: PodcastStatusEnum.NONE,
+          })
+          .orderBy('p.date', 'DESC')
+          .limit(20);
+
+        // get the minimum date from the subquery
+        const dates = await subQuery.getRawMany<{ date: Date }>();
+        const minDate = dates.length ? dates[dates.length - 1].date : null;
+        if (minDate) {
+          startDate = startOfDay(minDate);
+        }
+
+        // status should be NONE
+        podcasts.andWhere('COALESCE(ps.status, 0) = :noneStatus', {
+          noneStatus: PodcastStatusEnum.NONE,
+        });
+      }
 
       podcasts.andWhere('podcast.date between :startDate and :endDate', {
         startDate: startDate,
