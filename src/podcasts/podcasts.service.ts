@@ -31,15 +31,15 @@ export class PodcastsService {
       status: PodcastStatusEnum;
     }[] = [];
 
+    const hasUserSubscription = user
+      ? (await this.subscriptionService.countSubscriptionsByUser(user.sub)) > 0
+      : false;
     // loop few times to attempt to get podcasts. if still don't have, then return empty array
     for (let i = 0; i < 20; i++) {
       const podcasts = this.getPodcastsQuery(user);
 
       if (user) {
-        if (
-          (await this.subscriptionService.countSubscriptionsByUser(user.sub)) >
-          0
-        ) {
+        if (hasUserSubscription) {
           podcasts.innerJoin(
             'subscription',
             'subscription',
@@ -64,14 +64,31 @@ export class PodcastsService {
       // if start date is more than 14 days ago, we get the min date of the last 20 records before that
       if (isStartDate14DaysAgo) {
         const subQuery = this.podcastRepository
-          .createQueryBuilder('p')
-          .select('p.date', 'date')
-          .where('p.date <= :cutoff', { cutoff: endDate }) // this should be the end date
-          .andWhere('COALESCE(p.status, 0) = :status', {
+          .createQueryBuilder('podcast')
+          .leftJoinAndSelect(
+            'podcast_status',
+            'ps',
+            'ps.podcastUuid = podcast.id AND ps.userUuid = :userUuid',
+            {
+              userUuid: user?.sub,
+            },
+          )
+          .select('podcast.date', 'date')
+          .where('podcast.date <= :cutoff', { cutoff: endDate }) // this should be the end date
+          .andWhere('COALESCE(ps.status, 0) = :status', {
             status: PodcastStatusEnum.NONE,
           })
-          .orderBy('p.date', 'DESC')
+          .orderBy('podcast.date', 'DESC')
           .limit(20);
+
+        if (user) {
+          subQuery.innerJoin(
+            'subscription',
+            'subscription',
+            'podcast.playlistUuid = subscription.playlistUuid AND subscription.userUuid = :userUuid',
+            { userUuid: user.sub },
+          )
+        }
 
         // get the minimum date from the subquery
         const dates = await subQuery.getRawMany<{ date: Date }>();
