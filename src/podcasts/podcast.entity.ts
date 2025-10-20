@@ -6,7 +6,6 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { PodcastStatusEnum } from 'src/common/enum/podcast-status.enum';
 
 @Entity()
 export class Podcast {
@@ -29,10 +28,6 @@ export class Podcast {
   // @Column({ type: 'tinyint' }) // mysql
   @Column({ type: 'boolean' })
   is_real_date: boolean;
-
-  // TODO: remove after migration
-  @Column({ type: 'int', nullable: true })
-  status?: PodcastStatusEnum;
 
   @Column({ type: 'timestamp' })
   created_timestamp: Date;

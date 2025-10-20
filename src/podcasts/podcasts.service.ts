@@ -87,7 +87,7 @@ export class PodcastsService {
             'subscription',
             'podcast.playlistUuid = subscription.playlistUuid AND subscription.userUuid = :userUuid',
             { userUuid: user.sub },
-          )
+          );
         }
 
         // get the minimum date from the subquery
